@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<body>
+<script>
+function infixToPostfix(infixexpr){
+    prec = {};
+    prec["*"] = 3;
+    prec["/"] = 3;
+    prec["+"] = 2;
+    prec["-"] = 2;
+    prec["("] = 1;
+    opStack = [];
+    postfixList = [];
+    tokenList = infixexpr.split(' ');
+	numberics = "0123456789";
+	tokenList.forEach(function(token,index){
+		if(numberics.indexOf(token) !== -1)
+		{
+			postfixList.push(token);
+		}else if(token == '('){
+			opStack.push(token);
+		}else if(token == ')'){
+			topToken = opStack.pop();
+			while(topToken != '(')
+			{
+				postfixList.push(topToken);
+				topToken = opStack.pop();
+			}
+		}else{
+			while (opStack.length > 0 && prec[opStack.slice(-1).pop()] >= prec[token])
+					postfixList.push(opStack.pop());
+					opStack.push(token);
+		}
+	});
+    while (opStack.length > 0){
+		postfixList.push(opStack.pop())
+	}
+    return postfixList.join(' ');
+}
+
+function postfixEval(postfixExpr){
+    operandStack = [];
+    tokenList = postfixExpr.split(' ');
+	numberics = "0123456789";
+    tokenList.forEach(function(token, index){
+		if(numberics.indexOf(token) > -1)
+		{
+			operandStack.push(Number(token));
+		}else{
+			operand2 = operandStack.pop();
+            operand1 = operandStack.pop();
+            result = doMath(token,operand1,operand2);
+            operandStack.push(result);
+		}
+	});
+    return operandStack.pop()
+};
+
+function doMath(op, op1, op2){
+    if (op == "*")
+        return op1 * op2
+    else if (op == "/")
+        return op1 / op2
+    else if (op == "+")
+        return op1 + op2
+    else
+        return op1 - op2
+};
+
+
+function calculator()
+{
+	calculations =[];
+	calculations.push("( 2 * 2 ) + ( 4 * 4 )");
+	calculations.push("( 1 + 4 ) * 6 - ( 3 - 1 ) * ( 1 + 8 )");
+	calculations.push("( 1 + 4 ) * ( 6 + 3 )");
+	calculations.push("( 1 + 4 ) * 6");
+	calculations.push("1 + 4 * 6");
+	calculations.forEach(function(calculation, index){
+		console.log(calculation);
+		console.log(infixToPostfix(calculation));
+		console.log(postfixEval(infixToPostfix(calculation)));
+	});
+}
+calculator();
+</script>
+</body>
+</html> 
