@@ -4,6 +4,7 @@
 <script>
 function infixToPostfix(infixexpr){
     prec = {};
+	prec["^"] = 3;
     prec["*"] = 3;
     prec["/"] = 3;
     prec["+"] = 2;
@@ -12,9 +13,8 @@ function infixToPostfix(infixexpr){
     opStack = [];
     postfixList = [];
     tokenList = infixexpr.split(' ');
-	numberics = "0123456789";
 	tokenList.forEach(function(token,index){
-		if(numberics.indexOf(token) !== -1)
+		if(isNaN(token) == false)
 		{
 			postfixList.push(token);
 		}else if(token == '('){
@@ -41,9 +41,8 @@ function infixToPostfix(infixexpr){
 function postfixEval(postfixExpr){
     operandStack = [];
     tokenList = postfixExpr.split(' ');
-	numberics = "0123456789";
     tokenList.forEach(function(token, index){
-		if(numberics.indexOf(token) > -1)
+		if(isNaN(token) == false)
 		{
 			operandStack.push(Number(token));
 		}else{
@@ -61,6 +60,8 @@ function doMath(op, op1, op2){
         return op1 * op2
     else if (op == "/")
         return op1 / op2
+	else if (op == "^")
+        return Math.pow(op1, op2)
     else if (op == "+")
         return op1 + op2
     else
@@ -76,6 +77,9 @@ function calculator()
 	calculations.push("( 1 + 4 ) * ( 6 + 3 )");
 	calculations.push("( 1 + 4 ) * 6");
 	calculations.push("1 + 4 * 6");
+	calculations.push("( 2 * 2 ) ^ 2");
+	calculations.push("( 1.2 * 2.4 ) ^ 2");
+	calculations.push("( ( 2 * 2 ) + ( 4 * 4 ) ) ^ 2");
 	calculations.forEach(function(calculation, index){
 		console.log(calculation);
 		console.log(infixToPostfix(calculation));
