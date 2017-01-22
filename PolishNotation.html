@@ -12,7 +12,7 @@ function infixToPostfix(infixexpr){
     prec["("] = 1;
     opStack = [];
     postfixList = [];
-    tokenList = infixexpr.split(' ');
+    tokenList = infixexpr;
 	tokenList.forEach(function(token,index){
 		if(isNaN(token) == false)
 		{
@@ -46,10 +46,23 @@ function postfixEval(postfixExpr){
 		{
 			operandStack.push(Number(token));
 		}else{
-			operand2 = operandStack.pop();
-            operand1 = operandStack.pop();
-            result = doMath(token,operand1,operand2);
-            operandStack.push(result);
+            operand2 = operandStack.pop();			
+			operand1 = operandStack.pop()			
+			var result;
+			if(operand1 === undefined && operand2 !== undefined){
+				if(token === "-")
+				{
+					result = operand2 * -1;
+				}else if(token === "+"){
+					result = operand2;
+				} 
+				else{
+					throw "Illegal character";
+				}
+			}else{
+				result = doMath(token,operand1,operand2);
+			}
+			operandStack.push(result);
 		}
 	});
     return operandStack.pop()
@@ -60,8 +73,9 @@ function doMath(op, op1, op2){
         return op1 * op2
     else if (op == "/")
         return op1 / op2
-	else if (op == "^")
+	else if (op == "^"){
         return Math.pow(op1, op2)
+		}
     else if (op == "+")
         return op1 + op2
     else
@@ -72,19 +86,68 @@ function doMath(op, op1, op2){
 function calculator()
 {
 	calculations =[];
-	calculations.push("( 2 * 2 ) + ( 4 * 4 )");
-	calculations.push("( 1 + 4 ) * 6 - ( 3 - 1 ) * ( 1 + 8 )");
+	calculations.push("(2*-2) + (4 * 4 )");
+	calculations.push("( 1 + 4 ) * 6 - ( .3 - 1 ) * ( 1 + 8 )");
 	calculations.push("( 1 + 4 ) * ( 6 + 3 )");
 	calculations.push("( 1 + 4 ) * 6");
 	calculations.push("1 + 4 * 6");
-	calculations.push("( 2 * 2 ) ^ 2");
+	calculations.push("- ( 2 * 2 ) ^ 2");
+	calculations.push("+ ( 2 * 2 ) ^ 2");
 	calculations.push("( 1.2 * 2.4 ) ^ 2");
 	calculations.push("( ( 2 * 2 ) + ( 4 * 4 ) ) ^ 2");
 	calculations.forEach(function(calculation, index){
+		console.log("notation " + stringToArray(calculation).join(' '));
 		console.log(calculation);
-		console.log(infixToPostfix(calculation));
-		console.log(postfixEval(infixToPostfix(calculation)));
+		//console.log(postfixEval(infixToPostfix(stringToArray(calculation))));
 	});
+}
+
+function stringToArray(str)
+{
+	tokenList = [];
+		var checklist = '*^+-/';
+		var numbers = [];
+		var postfix = [];
+		for(var i =0; i < str.length; i++)
+		{
+			if(str[i] === ' ')
+				continue;
+			else if(checklist.indexOf(str[i]) > -1)
+			{
+				if(numbers.length > 0)
+				{
+					tokenList.push(numbers.join(''));
+					numbers = [];
+				}
+				if(postfix.length == 0)
+				{
+					tokenList.push(str[i]);
+				}
+				postfix.push(str[i]);
+			}else if(str[i] === '(' || str[i] === ')')
+			{		
+				if(numbers.length > 0)
+				{
+					tokenList.push(numbers.join(''));
+					numbers = [];
+				}
+				if(postfix.length == 2){
+					tokenList.push(postfix.pop());
+				}else if(postfix > 2){
+					throw "Illegal character";
+				}
+				tokenList.push(str[i]);
+			}else{
+				if(postfix.length == 2){
+					tokenList.push(postfix.pop());
+				}else if(postfix > 2){
+					throw "Illegal character";
+				}
+				postfix = [];
+				numbers.push(str[i]);
+			}
+		}
+	return tokenList;
 }
 calculator();
 </script>
