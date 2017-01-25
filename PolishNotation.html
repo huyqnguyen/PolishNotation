@@ -86,8 +86,8 @@ function doMath(op, op1, op2){
 function calculator()
 {
 	calculations =[];
-	calculations.push("(2*-2) + (4 * 4 )");
-	calculations.push("( 1 + 4 ) * 6 - ( .3 - 1 ) * ( 1 + 8 )");
+	calculations.push("(2*-2)+(4*4)");
+	calculations.push("( 1 + - 4 ) * 6 - ( .3 - 1 ) * ( 1 + 8 )");
 	calculations.push("( 1 + 4 ) * ( 6 + 3 )");
 	calculations.push("( 1 + 4 ) * 6");
 	calculations.push("1 + 4 * 6");
@@ -96,9 +96,8 @@ function calculator()
 	calculations.push("( 1.2 * 2.4 ) ^ 2");
 	calculations.push("( ( 2 * 2 ) + ( 4 * 4 ) ) ^ 2");
 	calculations.forEach(function(calculation, index){
-		console.log("notation " + stringToArray(calculation).join(' '));
 		console.log(calculation);
-		//console.log(postfixEval(infixToPostfix(stringToArray(calculation))));
+		console.log(postfixEval(infixToPostfix(stringToArray(calculation))));
 	});
 }
 
@@ -114,37 +113,37 @@ function stringToArray(str)
 				continue;
 			else if(checklist.indexOf(str[i]) > -1)
 			{
-				if(numbers.length > 0)
-				{
-					tokenList.push(numbers.join(''));
-					numbers = [];
-				}
-				if(postfix.length == 0)
-				{
-					tokenList.push(str[i]);
-				}
 				postfix.push(str[i]);
-			}else if(str[i] === '(' || str[i] === ')')
-			{		
 				if(numbers.length > 0)
 				{
 					tokenList.push(numbers.join(''));
-					numbers = [];
+					numbers =[];
 				}
-				if(postfix.length == 2){
-					tokenList.push(postfix.pop());
-				}else if(postfix > 2){
-					throw "Illegal character";
+				if(postfix.length === 1)
+				{
+					tokenList.push(str[i]);					
+				}
+			}else if(str[i] === '(' || str[i] === ')'){
+				if(numbers.length > 0)
+				{
+					tokenList.push(numbers.join(''));
+					numbers =[];
 				}
 				tokenList.push(str[i]);
-			}else{
-				if(postfix.length == 2){
-					tokenList.push(postfix.pop());
-				}else if(postfix > 2){
+			}else{	
+				if(postfix.length === 2)
+				{
+					numbers.push(postfix.pop());
+				}else if(postfix.length > 2)
+				{
 					throw "Illegal character";
 				}
-				postfix = [];
 				numbers.push(str[i]);
+				if(i == str.length-1)
+				{
+					tokenList.push(numbers.join(''));
+				}
+				postfix = [];
 			}
 		}
 	return tokenList;
