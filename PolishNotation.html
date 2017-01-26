@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html>
 <body>
+<button onclick="pressToGenerateExpression();" >press to generate expression</button></br>
+<label>Expression : </label><label id="expression"></label></br>
+<label>Result : </label><label id="result"></label>
+</body>
 <script>
 function infixToPostfix(infixexpr){
     prec = {};
-	prec["^"] = 3;
+	prec["^"] = 4;
     prec["*"] = 3;
     prec["/"] = 3;
     prec["+"] = 2;
@@ -21,11 +25,10 @@ function infixToPostfix(infixexpr){
 			opStack.push(token);
 		}else if(token == ')'){
 			topToken = opStack.pop();
-			while(topToken != '(')
-			{
+			do{
 				postfixList.push(topToken);
 				topToken = opStack.pop();
-			}
+			}while(topToken != '(')
 		}else{
 			while (opStack.length > 0 && prec[opStack.slice(-1).pop()] >= prec[token])
 					postfixList.push(opStack.pop());
@@ -86,6 +89,8 @@ function doMath(op, op1, op2){
 function calculator()
 {
 	calculations =[];
+	calculations.push("-1+2+3*4-5*6/(8-7)^(10*10 - 9*11)");
+	calculations.push("(2*2^3)");
 	calculations.push("(2*-2)+(4*4)");
 	calculations.push("( 1 + - 4 ) * 6 - ( .3 - 1 ) * ( 1 + 8 )");
 	calculations.push("( 1 + 4 ) * ( 6 + 3 )");
@@ -121,7 +126,7 @@ function stringToArray(str)
 				}
 				if(postfix.length === 1)
 				{
-					tokenList.push(str[i]);					
+					tokenList.push(str[i]);
 				}
 			}else if(str[i] === '(' || str[i] === ')'){
 				if(numbers.length > 0)
@@ -148,7 +153,72 @@ function stringToArray(str)
 		}
 	return tokenList;
 }
-calculator();
+
+function expr(value, left, op, right, hasParentheses){
+	this.value = value;
+	this.left = left;
+	this.right = right;
+	this.op = op;
+	this.hasParentheses = hasParentheses;
+	var self = this;
+	this.toString = function(){
+		var result = self.left + " " + self.op + " " + self.right;
+		if (self.hasParentheses)
+			return "(" + result + ")";
+		return result;
+	}
+};
+var add = function(value, hasParentheses) {
+	var val = Math.floor(Math.random() * value);
+	return new expr(value, val, '+', value - val, hasParentheses);
+}
+	
+var minus = function(value, hasParentheses) {
+	var val = Math.floor(Math.random() * value);
+	return new expr(value, value + val, '-', val, hasParentheses);
+}	
+var divide = function(value, hasParentheses) {
+	var val = Math.floor(Math.random() * 3) + 1;
+	
+	return new expr(value, value * val, '/', val, hasParentheses);
+}	
+var multiply = function(value, hasParentheses) {
+	var val = 1; 
+	var trial = 0;
+	do {
+		if (trial == 100)
+			break;
+		val = Math.floor(Math.random() * (value / 2)) + 1;
+		trial++;
+	} while (value % val != 0);
+		
+	return new expr(value, val, '*', value / val, hasParentheses);
+}
+	
+var ops = ['+', '-', '*', '/'];
+var genDict = [];
+genDict.push(add);
+genDict.push(minus);
+genDict.push(multiply);
+genDict.push(divide);
+function generate(prevOp, value, level){
+	var index = Math.floor(Math.random() * 4);
+	var op = ops[index];
+	var gen = genDict[index];
+	var hasPrnt = Math.floor(ops.indexOf(prevOp) / 2) >= Math.floor(ops.indexOf(op) / 2);
+	
+	var newExp = gen(value, hasPrnt);
+	
+	if (level == 0)
+		return newExp;
+	
+	return new expr(value, generate(op, newExp.left, level - 1), op, generate(op, newExp.right, level - 1), hasPrnt);
+}
+function pressToGenerateExpression(){
+	var expression = generate(' ', 12, 2).toString();
+	var result = postfixEval(infixToPostfix(stringToArray(expression)));
+	document.getElementById("expression").innerHTML = expression;
+	document.getElementById("result").innerHTML = result;
+}
 </script>
-</body>
 </html> 
